@@ -113,6 +113,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public ApplicantStatus checkStatus(long applicantId) throws IBSCustomException {
+		System.out.println("reached checkStatus()");
 		applicant = applicantDao.getApplicantDetails(applicantId);
 		return applicant.getApplicantStatus();
 	}
@@ -174,8 +175,10 @@ public class CustomerServiceImpl implements CustomerService {
 	public boolean saveApplicantDetails(ApplicantBean applicant) throws IBSCustomException, SQLException {
 
 		boolean result = false;
+		System.out.println("reahced saveApplicantDetails");
 		if (applicant.getApplicantId() == 0) {
 			long applicantId = generateApplicantId();
+			System.out.println("applicant id" + applicantId);
 			while (applicantDao.isApplicantPresent(applicantId)) {
 				applicantId = generateApplicantId();
 			}
@@ -194,7 +197,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public boolean storeCustomerDetails(CustomerBean customerBean) throws IBSCustomException {
 		boolean result = false;
-
+		System.out.println("reached storeCustomerDetails");
 		result = customerDao.saveCustomer(customerBean);
 		return result;
 	}
@@ -245,7 +248,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean updateApplicantStatus(ApplicantBean applicant) {
+	public boolean updateApplicantStatusToApproved(ApplicantBean applicant) {
 		boolean result = false;
 
 		if (applicantDao.updateStatusToApproved(applicant)) {
@@ -277,6 +280,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public CustomerBean getCustomerByApplicantId(long applicantId) {
+		System.out.println("reached getCustomerByApplicantId");
 		CustomerBean customer = customerDao.getCustomerByApplicantId(applicantId);
 		return customer;
 	}

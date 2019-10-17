@@ -8,6 +8,7 @@ public interface QueryMap {
 	// existingCustomer
 	public static String insertApplicantDetails = "INSERT INTO APPLICANTS VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
+	//change
 	public static String getAllApplications = "SELECT APPLICANT_ID, FIRST_NAME, LAST_NAME, FATHER_NAME, "
 			+ "MOTHER_NAME, DOB, GENDER, MOBILE_NUMBER, ALTERNATE_MOBILE_NUMBER, EMAIL_ID, "
 			+ "AADHAR_NUMBER, PAN_NUMBER, ACCOUNT_TYPE, ACCOUNT_HOLDER, APPLICANT_STATUS, "
@@ -28,20 +29,24 @@ public interface QueryMap {
 	
 	public static String updateLinkedApplication = "UPDATE APPLICANTS SET LINKED_APPLICATION = ? WHERE APPLICANT_ID = ?";
 	
-	public static String insertCustomersDetails = "INSERT INTO CUSTOMERS VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	public static String insertCustomersDetails = "INSERT INTO CUSTOMERS VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
-	public static String getAllCustomersDetails = "SELECT UCI, USER_ID, PASSWORD, APPLICANT_ID, "
+	public static String getAllCustomerDetails = "SELECT UCI, USER_ID, PASSWORD, APPLICANT_ID, "
 	  + "FIRST_NAME, LAST_NAME, FATHER_NAME, MOTHER_NAME, DOB, GENDER, "
 	  + "MOBILE_NUMBER, ALTERNATE_MOBILE_NUMBER, EMAIL_ID, AADHAR_NUMBER, PAN_NUMBER, "
 	  + "ACCOUNT_TYPE, ACCOUNT_HOLDER FROM CUSTOMERS";
 	
-	public static String getCustomersDetails = "SELECT UCI, USER_ID, PASSWORD, APPLICANT_ID,"
+	public static String getCustomerDetails = "SELECT UCI, USER_ID, PASSWORD, APPLICANT_ID,"
 	  + "FIRST_NAME, LAST_NAME, FATHER_NAME, MOTHER_NAME, DOB, GENDER,"
 	   + "MOBILE_NUMBER, ALTERNATE_MOBILE_NUMBER, EMAIL_ID, AADHAR_NUMBER, PAN_NUMBER,"
 	  + "ACCOUNT_TYPE, ACCOUNT_HOLDER FROM CUSTOMERS WHERE UCI = ? ";
 	
-	public static String getCustomersDetailsByApplicantId = "SELECT UCI, USER_ID, PASSWORD, APPLICANT_ID,"
+	public static String getCustomerDetailsByApplicantId = "SELECT UCI, USER_ID, PASSWORD, APPLICANT_ID,"
 	   + "FIRST_NAME, LAST_NAME, FATHER_NAME, MOTHER_NAME, DOB, GENDER,"
 	   + "MOBILE_NUMBER, ALTERNATE_MOBILE_NUMBER, EMAIL_ID, AADHAR_NUMBER, PAN_NUMBER,"
 	   + "ACCOUNT_TYPE, ACCOUNT_HOLDER FROM CUSTOMERS WHERE APPLICANT_ID = ? ";
+	
+	public static String getAllCustomers = "SELECT UCI FROM CUSTOMERS";
+	
+	
 }

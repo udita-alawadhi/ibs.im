@@ -58,7 +58,7 @@ public interface CustomerService {
 
 	long generatedApplicantId();
 
-	boolean updateApplicantStatus(ApplicantBean applicant);
+	boolean updateApplicantStatusToApproved(ApplicantBean applicant);
 
 	boolean updateLinkedApplication(ApplicantBean applicant);
 

@@ -101,11 +101,14 @@ public class BankerSeviceImpl implements BankerService {
 	@Override
 	public CustomerBean createNewCustomer(ApplicantBean applicant) throws IBSCustomException, SQLException {
 		customer = new CustomerBean();
-		long applicantId = applicant.getApplicantId(); 
+		long applicantId = applicant.getApplicantId();
+		//check uci is not present
 		BigInteger customerUci = generateUci();
+		System.out.println(customerUci + "generated");
 		customer.setUci(customerUci);	
 		customer.setApplicant(applicant);	
 		customer.setUserId(generateUsername(applicantId));
+		System.out.println("--------------------------");
 		customer.setPassword(generatePassword(applicantId));
 		Set<AccountBean> accounts = new HashSet<AccountBean>();
 		if(applicant.getAccountHolder()!=AccountHolder.SECONDARY) {
@@ -116,11 +119,13 @@ public class BankerSeviceImpl implements BankerService {
 		} else {
 			CustomerBean customer2 = customerService.getCustomerByApplicantId(applicant.getLinkedApplication());
 			customer.setAccounts(customer2.getAccounts());//get account number of linkedApplicantId
-			
 		}
 		applicant.setExistingCustomer(true);
 		applicant.setApplicantStatus(ApplicantStatus.APPROVED);
-		customerService.saveApplicantDetails(applicant);
+		System.out.println("here");
+		customerService.updateApplicantStatusToApproved(applicant);
+		System.out.println();
+		//customerService.saveApplicantDetails(applicant);
 		customer.setApplicant(applicant);
 
 		boolean result = customerDao.saveCustomer(customer);
