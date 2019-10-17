@@ -123,8 +123,16 @@ public class CustomerServiceImpl implements CustomerService {
 		boolean result = false;
 
 		customer = getCustomerDetails(uci);
+		System.out.println(customer.getUci());
+		System.out.println(customer.getPassword());
+		
+		System.out.println("------------------");
+		System.out.println(uci);
+		System.out.println(password);
+		
+		
 		if (customer != null) {
-			if (customer.getUci().equals(uci)) {
+			if (customer.getUci().toString().equals(uci)) {
 				if (customer.getPassword().equals(password)) {
 					result = true;
 				} else {

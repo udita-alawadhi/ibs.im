@@ -48,5 +48,7 @@ public interface QueryMap {
 	
 	public static String getAllCustomers = "SELECT UCI FROM CUSTOMERS";
 	
+	public static String updateCustomerPassword = "UPDATE CUSTOMERS SET PASSWORD= ? WHERE UCI = ?";
+	
 	
 }

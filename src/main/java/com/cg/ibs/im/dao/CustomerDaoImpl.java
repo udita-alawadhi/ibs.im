@@ -99,6 +99,7 @@ public class CustomerDaoImpl implements CustomerDao {
 				
 				while (resultSet.next()) {
 					newCustomer2.setUci(new BigInteger(resultSet.getBigDecimal(1).toString()));
+					System.out.println("stringggggggggggggggg: "+newCustomer2.getUci());
 					newCustomer2.setUserId(resultSet.getString(2));
 					newCustomer2.setPassword(resultSet.getString(3));
 					newApplicant.setApplicantId(resultSet.getLong(4));
@@ -151,6 +152,18 @@ public class CustomerDaoImpl implements CustomerDao {
 		return newCustomer2;
 	}
 
+	public boolean updatePassword() {
+		boolean result = false;
+		Connection connection = OracleConnection.callConnection();
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.updateCustomerPassword);) {
+			try (ResultSet resultSet = statement.executeQuery();) {
+				
+			}
+			} catch (Exception exception) {
+				
+			}
+		return result;
+	}
 	@Override
 	public Set<BigInteger> getAllCustomers() {
 		Set<BigInteger> customerSet = new HashSet<BigInteger>();
