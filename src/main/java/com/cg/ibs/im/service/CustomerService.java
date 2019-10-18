@@ -3,6 +3,8 @@ package com.cg.ibs.im.service;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+
+import com.cg.ibs.bean.AddressBean;
 import com.cg.ibs.bean.ApplicantBean;
 import com.cg.ibs.bean.ApplicantBean.ApplicantStatus;
 import com.cg.ibs.bean.CustomerBean;
@@ -61,6 +63,12 @@ public interface CustomerService {
 	boolean updateApplicantStatusToApproved(ApplicantBean applicant);
 
 	boolean updateLinkedApplication(ApplicantBean applicant);
+
+	boolean updateLoginCount(CustomerBean customer) throws IBSCustomException;
+
+	boolean saveCurrentAddress(long applicantId, AddressBean address);
+
+	boolean savePermanentAddress(long applicantId, AddressBean address);
 
 
 }

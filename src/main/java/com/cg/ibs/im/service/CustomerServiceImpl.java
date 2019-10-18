@@ -7,9 +7,12 @@ import java.time.Period;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.cg.ibs.bean.AddressBean;
 import com.cg.ibs.bean.ApplicantBean;
 import com.cg.ibs.bean.ApplicantBean.ApplicantStatus;
 import com.cg.ibs.bean.CustomerBean;
+import com.cg.ibs.im.dao.AddressDao;
+import com.cg.ibs.im.dao.AddressDaoImpl;
 import com.cg.ibs.im.dao.ApplicantDao;
 import com.cg.ibs.im.dao.ApplicantDaoImpl;
 import com.cg.ibs.im.dao.CustomerDao;
@@ -22,6 +25,7 @@ public class CustomerServiceImpl implements CustomerService {
 	private ApplicantDao applicantDao = new ApplicantDaoImpl();
 	private CustomerBean customer = new CustomerBean();
 	private CustomerDao customerDao = new CustomerDaoImpl();
+	private AddressDao addressDao = new AddressDaoImpl();
 	static long applicationId = 10000; // 5 digit applicant ID
 
 	public static long generateApplicantId() {
@@ -113,7 +117,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public ApplicantStatus checkStatus(long applicantId) throws IBSCustomException {
-		System.out.println("reached checkStatus()");
+	
 		applicant = applicantDao.getApplicantDetails(applicantId);
 		return applicant.getApplicantStatus();
 	}
@@ -123,13 +127,6 @@ public class CustomerServiceImpl implements CustomerService {
 		boolean result = false;
 
 		customer = getCustomerDetails(uci);
-		System.out.println(customer.getUci());
-		System.out.println(customer.getPassword());
-		
-		System.out.println("------------------");
-		System.out.println(uci);
-		System.out.println(password);
-		
 		
 		if (customer != null) {
 			if (customer.getUci().toString().equals(uci)) {
@@ -171,7 +168,20 @@ public class CustomerServiceImpl implements CustomerService {
 	public boolean updatePassword(CustomerBean customer, String password) throws IBSCustomException {
 		boolean result = false;
 		if (customer != null) {
-			customer.setPassword(password);
+			customerDao.updatePassword(customer, password);
+			result = true;
+		} else {
+			throw new IBSCustomException(IBSException.customerNotPresent);
+		}
+		return result;
+	}
+	
+	@Override
+	public boolean updateLoginCount(CustomerBean customer) throws IBSCustomException {
+		boolean result = false;
+		if (customer != null) {
+			if(customer.getLogin()==0)
+				customerDao.updateLoginCount(customer);
 			result = true;
 		} else {
 			throw new IBSCustomException(IBSException.customerNotPresent);
@@ -183,10 +193,8 @@ public class CustomerServiceImpl implements CustomerService {
 	public boolean saveApplicantDetails(ApplicantBean applicant) throws IBSCustomException, SQLException {
 
 		boolean result = false;
-		System.out.println("reahced saveApplicantDetails");
 		if (applicant.getApplicantId() == 0) {
 			long applicantId = generateApplicantId();
-			System.out.println("applicant id" + applicantId);
 			while (applicantDao.isApplicantPresent(applicantId)) {
 				applicantId = generateApplicantId();
 			}
@@ -205,7 +213,6 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public boolean storeCustomerDetails(CustomerBean customerBean) throws IBSCustomException {
 		boolean result = false;
-		System.out.println("reached storeCustomerDetails");
 		result = customerDao.saveCustomer(customerBean);
 		return result;
 	}
@@ -216,6 +223,26 @@ public class CustomerServiceImpl implements CustomerService {
 		return customer;
 	}
 
+	@Override
+	public boolean saveCurrentAddress(long applicantId, AddressBean address) {
+		boolean result = false;
+		if(address!=null) {
+			addressDao.saveCurrentAddress(applicantId, address);
+			result = true;
+		}
+		return result;
+	}
+	
+	@Override
+	public boolean savePermanentAddress(long applicantId, AddressBean address) {
+		boolean result = false;
+		if(address!=null) {
+			addressDao.savePermanentAddress(applicantId, address);
+			result = true;
+		}
+		return result;
+	}
+	
 	@Override
 	public boolean isCustomerValid(String uci) throws IBSCustomException {
 		boolean result = false;
@@ -232,7 +259,6 @@ public class CustomerServiceImpl implements CustomerService {
 		customer = getCustomerDetails(userUci);
 		if (customer.getLogin() == 0) {
 			result = true;
-			customer.setLogin(1);
 		}
 		return result;
 	}

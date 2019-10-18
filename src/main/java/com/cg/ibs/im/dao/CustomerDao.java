@@ -18,4 +18,14 @@ public interface CustomerDao {
 	CustomerBean getCustomerByApplicantId(long applicantId);
 
 	boolean copy(String srcPath, String destPath);
+
+	boolean updatePassword(CustomerBean customer, String password);
+
+	boolean updateLoginCount(CustomerBean customer);
+
+	boolean checkCustomerByUsernameExists(String username);
+
+	BigInteger getHighestUciValue();
+
+	boolean checkCustomerExists(BigInteger uci);
 }

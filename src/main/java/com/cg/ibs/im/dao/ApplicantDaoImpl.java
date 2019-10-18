@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.crypto.IllegalBlockSizeException;
+
 import com.cg.ibs.bean.AccountHolder;
 import com.cg.ibs.bean.AccountType;
 import com.cg.ibs.bean.AddressBean;
@@ -81,9 +83,9 @@ public class ApplicantDaoImpl implements ApplicantDao {
 		Connection connection = OracleConnection.callConnection();
 		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.updateApplicantStatus);) {
 			preparedStatement.setLong(1, applicant.getApplicantId());
-			
+
 			int check = preparedStatement.executeUpdate();
-			if(check==1) {
+			if (check == 1) {
 				result = true;
 			}
 		} catch (Exception exception) {
@@ -98,9 +100,9 @@ public class ApplicantDaoImpl implements ApplicantDao {
 		Connection connection = OracleConnection.callConnection();
 		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.updateLinkedApplication);) {
 			preparedStatement.setLong(1, applicant.getApplicantId());
-			
+
 			int check = preparedStatement.executeUpdate();
-			if(check==1) {
+			if (check == 1) {
 				result = true;
 			}
 		} catch (Exception exception) {
@@ -108,7 +110,7 @@ public class ApplicantDaoImpl implements ApplicantDao {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public Set<Long> getAllApplicants() {
 		Set<Long> applicantSet = new HashSet<Long>();
@@ -227,13 +229,12 @@ public class ApplicantDaoImpl implements ApplicantDao {
 		Connection connection = OracleConnection.callConnection();
 
 		try (PreparedStatement statement = connection.prepareStatement(QueryMap.getAllApplicationsByStatus);) {
-			statement.setString(1, applicantStatus.toString());
+			statement.setString(1, applicantStatus.toString().toUpperCase());
 			try (ResultSet resultSet = statement.executeQuery();) {
 
-				int index = 1;
 				while (resultSet.next()) {
-					applicantSet.add(resultSet.getLong(index));
-					index++;
+					long temp = resultSet.getLong("applicant_id");
+					applicantSet.add(temp);
 				}
 			}
 		} catch (SQLException exception) {
@@ -241,6 +242,45 @@ public class ApplicantDaoImpl implements ApplicantDao {
 		}
 
 		return applicantSet;
+	}
+
+	@Override
+	public boolean validateBankLogin(String userId, String password) {
+		boolean status = false;
+		Connection connection = OracleConnection.callConnection();
+		if (checkIfBankerExists(userId)) {
+			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.bankerDetails);) {
+				preparedStatement.setString(1, userId);
+				try (ResultSet resultSet = preparedStatement.executeQuery();) {
+					if (resultSet.next()) {
+						String tempPassword = resultSet.getString("PASSWORD");
+						if (password.equals(tempPassword)) {
+							status = true;
+						}
+					}
+				}
+			} catch (SQLException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+
+		return status;
+	}
+
+	public boolean checkIfBankerExists(String userId) {
+		boolean status = false;
+		Connection connection = OracleConnection.callConnection();
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.bankerDetails);) {
+			preparedStatement.setString(1, userId);
+
+			int index = preparedStatement.executeUpdate();
+			if (index == 1) {
+				status = true;
+			}
+		} catch (SQLException exception) {
+			System.out.println(exception.getMessage());
+		}
+		return status;
 	}
 
 }

@@ -229,10 +229,11 @@ public class IdentityManagementUI {
 		while (pendingList.size() > 0) {
 			System.out.println("The list of the pending applicants is here:");
 
-			for (long applicantId : pendingList) {
+			Iterator<Long> pendingIterator = pendingList.iterator();
+			while(pendingIterator.hasNext()) {
 				try {
-					if (customer.getApplicantDetails(applicantId).getAccountType() == AccountType.JOINT && customer
-							.getApplicantDetails(applicantId).getAccountHolder() == AccountHolder.SECONDARY) {
+					long applicantId = pendingIterator.next();
+					if (customer.getApplicantDetails(applicantId).getAccountType() == AccountType.JOINT && customer.getApplicantDetails(applicantId).getAccountHolder() == AccountHolder.SECONDARY) {
 						continue;
 					} else {
 						System.out.println(
@@ -245,11 +246,12 @@ public class IdentityManagementUI {
 
 			System.out.println("Enter an application number to check details:");
 			long applicantId = scanner.nextLong();
-			//
+
 			while (!banker.isApplicantPresentInPendingList(applicantId)) {
 				System.out.println("applicant is not present. Please enter a valid id:");
 				applicantId = scanner.nextLong();
 			}
+			
 			try {
 				applicant = banker.displayDetails(applicantId);
 				if (applicant.getAccountType() == AccountType.INDIVIDUAL) {
@@ -462,6 +464,10 @@ public class IdentityManagementUI {
 				applicant1.setLinkedApplication(0);
 				applicant1.setApplicationDate(LocalDate.now());
 				customer.saveApplicantDetails(applicant1);
+				long applicantId = applicant1.getApplicantId();
+				customer.savePermanentAddress(applicantId, applicant1.getPermanentAddress());
+				customer.saveCurrentAddress(applicantId, applicant1.getCurrentAddress());
+				System.out.println("--------------------------------------");
 				System.out.println(
 						"Keep updated with your status.\nYour applicant id " + "is " + applicant1.getApplicantId());
 			} else if (typeOfAccount.equals("2")) {
@@ -865,6 +871,8 @@ public class IdentityManagementUI {
 			}
 			try {
 				if (customer.login(userUci, password)) {
+					
+					
 					newCustomer = customer.getCustomerDetails(userUci);
 					if (customer.firstLogin(userUci)) {
 						firstLogin(userUci, password);
@@ -973,6 +981,7 @@ public class IdentityManagementUI {
 			}
 			try {
 				customer.updatePassword(newCustomer, confirmPassword);
+				customer.updateLoginCount(newCustomer);
 				System.out.println("Password updated");
 			} catch (Exception exception) {
 				System.out.println(exception.getMessage());

@@ -4,6 +4,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,9 +14,14 @@ import java.util.Set;
 import com.cg.ibs.bean.AccountBean;
 import com.cg.ibs.bean.AccountHolder;
 import com.cg.ibs.bean.AccountType;
+import com.cg.ibs.bean.AddressBean;
 import com.cg.ibs.bean.ApplicantBean;
 import com.cg.ibs.bean.ApplicantBean.ApplicantStatus;
 import com.cg.ibs.bean.CustomerBean;
+import com.cg.ibs.im.dao.AccountDao;
+import com.cg.ibs.im.dao.AccountDaoImpl;
+import com.cg.ibs.im.dao.AddressDao;
+import com.cg.ibs.im.dao.AddressDaoImpl;
 import com.cg.ibs.im.dao.ApplicantDao;
 import com.cg.ibs.im.dao.ApplicantDaoImpl;
 import com.cg.ibs.im.dao.CustomerDao;
@@ -29,6 +35,8 @@ public class BankerSeviceImpl implements BankerService {
 	CustomerService customerService = new CustomerServiceImpl();
 	CustomerBean customer = new CustomerBean();
 	AccountBean account = new AccountBean();
+	AddressDao addressDao = new AddressDaoImpl();
+	AccountDao accountDao = new AccountDaoImpl();
 
 	private static BigInteger uciConstant = new BigInteger("1111222210000000");
 	private static BigInteger accountVariable = new BigInteger("55010010000");
@@ -46,9 +54,7 @@ public class BankerSeviceImpl implements BankerService {
 	@Override
 	public boolean verifyLogin(String user, String password) {
 		boolean result = false;
-		if ((user.equals("admin1") && password.equals("pass")) || user.equals("admin") && password.equals("key1")) {
-			result = true;
-		}
+		result = applicantDao.validateBankLogin(user, password);
 		return result;
 	}
 
@@ -94,38 +100,63 @@ public class BankerSeviceImpl implements BankerService {
 	@Override
 	public String generateUsername(long applicantId) throws IBSCustomException {
 		ApplicantBean applicant = applicantDao.getApplicantDetails(applicantId);
-		String username = applicant.getLastName().substring(0, 4) + applicant.getMobileNumber().substring(6, 9);
+
+		String username = applicant.getFirstName().charAt(0) + applicant.getLastName();
+		System.out.println(username);
+		if (username.length() > 12) {
+			username = username.substring(0, 10);
+		}
+		int index = 1;
+		while (!checkUsernameIsUnique(username)) {
+			username = username.concat(String.valueOf(index));
+			if (username.length() > 12) {
+				username = username.substring(0, 11);
+			}
+			index++;
+		}
 		return username;
+	}
+
+	public boolean checkUsernameIsUnique(String username) {
+		boolean result = true;
+		try {
+			if (customerDao.checkCustomerByUsernameExists(username)) {
+				result = false;
+			}
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
+		}
+		return result;
 	}
 
 	@Override
 	public CustomerBean createNewCustomer(ApplicantBean applicant) throws IBSCustomException, SQLException {
 		customer = new CustomerBean();
 		long applicantId = applicant.getApplicantId();
-		//check uci is not present
+		// check uci is not present
 		BigInteger customerUci = generateUci();
-		System.out.println(customerUci + "generated");
-		customer.setUci(customerUci);	
-		customer.setApplicant(applicant);	
+		while (customerDao.checkCustomerExists(customerUci)) {
+			customerUci = generateUci();
+			// change this
+		}
+		customer.setUci(customerUci);
+		customer.setApplicant(applicant);
 		customer.setUserId(generateUsername(applicantId));
-		System.out.println("--------------------------");
 		customer.setPassword(generatePassword(applicantId));
 		Set<AccountBean> accounts = new HashSet<AccountBean>();
-		if(applicant.getAccountHolder()!=AccountHolder.SECONDARY) {
+		if (applicant.getAccountHolder() != AccountHolder.SECONDARY) {
 			account = createNewAccount(applicant);
 			account.setAccountType(AccountType.JOINT);
 			accounts.add(account);
 			customer.setAccounts(accounts);
 		} else {
 			CustomerBean customer2 = customerService.getCustomerByApplicantId(applicant.getLinkedApplication());
-			customer.setAccounts(customer2.getAccounts());//get account number of linkedApplicantId
+			customer.setAccounts(customer2.getAccounts());// get account number of linkedApplicantId
 		}
 		applicant.setExistingCustomer(true);
 		applicant.setApplicantStatus(ApplicantStatus.APPROVED);
-		System.out.println("here");
 		customerService.updateApplicantStatusToApproved(applicant);
-		System.out.println();
-		//customerService.saveApplicantDetails(applicant);
+		// customerService.saveApplicantDetails(applicant);
 		customer.setApplicant(applicant);
 
 		boolean result = customerDao.saveCustomer(customer);
@@ -134,17 +165,21 @@ public class BankerSeviceImpl implements BankerService {
 		} else
 			throw new IBSCustomException(IBSException.customerNotPresent);
 	}
-	
-	
+
 	@Override
 	public AccountBean createNewAccount(ApplicantBean newApplicant) {
-		account.setAccountNumber(generateAccountNumber());
+		BigInteger accountNumber = generateAccountNumber();
+		while (accountDao.checkAccountExists(accountNumber)) {
+			accountNumber = generateAccountNumber();
+		}
+		account.setAccountNumber(accountNumber);
 		account.setCurrentBalance(new BigDecimal("0.00"));
 		account.setAccountType(newApplicant.getAccountType());
+		account.setAccountCreationDate(LocalDate.now());
 		// set other details
 		return account;
 	}
-	
+
 	@Override
 	public AccountBean createNewAccount(CustomerBean newCustomer) {
 		account.setAccountNumber(generateAccountNumber());
@@ -152,17 +187,32 @@ public class BankerSeviceImpl implements BankerService {
 		// set other details
 		return account;
 	}
-	
-	
-	
 
 	@Override
 	public ApplicantBean displayDetails(long applicantId) throws IBSCustomException {
 		ApplicantBean applicant = applicantDao.getApplicantDetails(applicantId);
+		applicant.setPermanentAddress(getPermanentAddress(applicantId));
+		applicant.setCurrentAddress(getCurrentAddress(applicantId));
 		return applicant;
 
 	}
-	
+
+	public AddressBean getPermanentAddress(long applicantId) {
+		AddressBean address = new AddressBean();
+		if (applicantId != 0) {
+			address = addressDao.getPermanentAddress(applicantId);
+		}
+		return address;
+	}
+
+	public AddressBean getCurrentAddress(long applicantId) {
+		AddressBean address = new AddressBean();
+		if (applicantId != 0) {
+			address = addressDao.getCurrentAddress(applicantId);
+		}
+		return address;
+	}
+
 	@Override
 	public List<String> getFilesAvialable() {
 		List<String> files = new ArrayList<>();

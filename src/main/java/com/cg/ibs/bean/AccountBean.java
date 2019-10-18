@@ -2,13 +2,17 @@ package com.cg.ibs.bean;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Set;
 
 public class AccountBean {
 	private BigInteger accountNumber;
-	private Set<CustomerBean> accountHolders;
+	private Set<BigInteger> accountHolders;
 	private BigDecimal currentBalance;
 	private AccountType accountType;
+	private String transactionPassword;
+	private LocalDate accountCreationDate;
 
 	public AccountBean() {
 		super();
@@ -31,11 +35,11 @@ public class AccountBean {
 		this.accountNumber = accountNumber;
 	}
 
-	public Set<CustomerBean> getAccountHolders() {
+	public Set<BigInteger> getAccountHolders() {
 		return accountHolders;
 	}
 
-	public void setAccountHolders(Set<CustomerBean> accountHolders) {
+	public void setAccountHolders(Set<BigInteger> accountHolders) {
 		this.accountHolders = accountHolders;
 	}
 
@@ -58,6 +62,26 @@ public class AccountBean {
 		builder.append(accountType);
 		builder.append("]");
 		return builder.toString();
+	}
+
+
+	public String getTransactionPassword() {
+		return transactionPassword;
+	}
+
+
+	public void setTransactionPassword(String transactionPassword) {
+		this.transactionPassword = transactionPassword;
+	}
+
+
+	public LocalDate getAccountCreationDate() {
+		return accountCreationDate;
+	}
+
+
+	public void setAccountCreationDate(LocalDate accountCreationDate) {
+		this.accountCreationDate = accountCreationDate;
 	}
 
 }

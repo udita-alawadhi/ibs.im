@@ -15,7 +15,6 @@ public class OracleConnection {
 			String url = resourceBundle.getString("url");
 			String user = resourceBundle.getString("user");
 			String password = resourceBundle.getString("password");
-			System.out.println("connection created");		//deletethis
 			try {
 				connection = DriverManager.getConnection(url, user, password);
 			} catch (SQLException e) {

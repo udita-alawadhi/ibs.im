@@ -23,6 +23,8 @@ public interface ApplicantDao {
 
 	boolean updateLinkedApplication(ApplicantBean applicant);
 
+	boolean validateBankLogin(String userId, String password);
+
 	
 	
 	

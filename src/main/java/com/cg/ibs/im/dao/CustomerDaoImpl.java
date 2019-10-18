@@ -41,17 +41,13 @@ public class CustomerDaoImpl implements CustomerDao {
 	@Override
 	public boolean saveCustomer(CustomerBean newCustomer) {
 		if (newCustomer != null) {
-			System.out.println("check if this works");
 			boolean result = false;
 			Connection connection = OracleConnection.callConnection();
 			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.insertCustomersDetails);) {
-
-				System.out.println("Prepare statement linked to co");
 				preparedStatement.setBigDecimal(1, new BigDecimal(newCustomer.getUci()));
 				preparedStatement.setString(2, newCustomer.getUserId());
 				preparedStatement.setString(3, newCustomer.getPassword());
 				newApplicant = newCustomer.getApplicant();
-				System.out.println("Storing approved applicant details");
 				preparedStatement.setLong(4, newApplicant.getApplicantId());
 				preparedStatement.setString(5, newApplicant.getFirstName());
 				preparedStatement.setString(6, newApplicant.getLastName());
@@ -68,12 +64,10 @@ public class CustomerDaoImpl implements CustomerDao {
 				preparedStatement.setString(13, newApplicant.getAlternateMobileNumber());
 				preparedStatement.setString(14, newApplicant.getAadharNumber());
 				preparedStatement.setString(15, newApplicant.getPanNumber());
-				System.out.println("Specified the account type");
 				preparedStatement.setString(16, newApplicant.getAccountType().toString());
 				preparedStatement.setString(17, newApplicant.getAccountHolder().toString());
 				preparedStatement.setInt(18, 0);
-				System.out.println("everythintg is saved!!!!!!!!!");
-				
+
 				int check = preparedStatement.executeUpdate();
 				if (check > 0) {
 					result = true;
@@ -89,17 +83,15 @@ public class CustomerDaoImpl implements CustomerDao {
 	}
 
 	@Override
-	public CustomerBean getCustomerDetails(String uci) {   //why cusomer???check!!
+	public CustomerBean getCustomerDetails(String uci) { // why cusomer???check!!
 		CustomerBean newCustomer2 = new CustomerBean();
 		Connection connection = OracleConnection.callConnection();
 		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.getCustomerDetails);) {
 			preparedStatement.setString(1, uci);
 			try (ResultSet resultSet = preparedStatement.executeQuery();) {
 
-				
 				while (resultSet.next()) {
 					newCustomer2.setUci(new BigInteger(resultSet.getBigDecimal(1).toString()));
-					System.out.println("stringggggggggggggggg: "+newCustomer2.getUci());
 					newCustomer2.setUserId(resultSet.getString(2));
 					newCustomer2.setPassword(resultSet.getString(3));
 					newApplicant.setApplicantId(resultSet.getLong(4));
@@ -107,7 +99,7 @@ public class CustomerDaoImpl implements CustomerDao {
 					newApplicant.setLastName(resultSet.getString(6));
 					newApplicant.setFatherName(resultSet.getString(7));
 					newApplicant.setMotherName(resultSet.getString(8));
-					
+
 					java.sql.Date date = resultSet.getDate(9);
 					LocalDate dob = date.toLocalDate();
 					newApplicant.setDob(dob);
@@ -142,7 +134,8 @@ public class CustomerDaoImpl implements CustomerDao {
 					}
 					newApplicant.setExistingCustomer(true);
 					newApplicant.setApplicantStatus(ApplicantStatus.APPROVED);
-					//linkedApplication??
+					// linkedApplication??
+					newCustomer2.setLogin(resultSet.getInt(18));
 					newCustomer2.setApplicant(newApplicant);
 				}
 			}
@@ -152,18 +145,41 @@ public class CustomerDaoImpl implements CustomerDao {
 		return newCustomer2;
 	}
 
-	public boolean updatePassword() {
+	@Override
+	public boolean updatePassword(CustomerBean customer, String password) {
 		boolean result = false;
 		Connection connection = OracleConnection.callConnection();
 		try (PreparedStatement statement = connection.prepareStatement(QueryMap.updateCustomerPassword);) {
-			try (ResultSet resultSet = statement.executeQuery();) {
-				
+			statement.setString(1, password);
+			statement.setBigDecimal(2, new BigDecimal(customer.getUci()));
+			int check = statement.executeUpdate();
+			if (check == 1) {
+				result = true;
 			}
-			} catch (Exception exception) {
-				
-			}
+
+		} catch (Exception exception) {
+
+		}
 		return result;
 	}
+
+	@Override
+	public boolean updateLoginCount(CustomerBean customer) {
+		boolean result = false;
+		Connection connection = OracleConnection.callConnection();
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.updateLoginCount);) {
+			statement.setBigDecimal(1, new BigDecimal(customer.getUci()));
+			int check = statement.executeUpdate();
+			if (check == 1) {
+				result = true;
+			}
+
+		} catch (Exception exception) {
+
+		}
+		return result;
+	}
+
 	@Override
 	public Set<BigInteger> getAllCustomers() {
 		Set<BigInteger> customerSet = new HashSet<BigInteger>();
@@ -189,11 +205,12 @@ public class CustomerDaoImpl implements CustomerDao {
 	}
 
 	public CustomerBean getCustomerByApplicantId(long applicantId) {
-		
+
 		Connection connection = OracleConnection.callConnection();
-		try(PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.getCustomerDetailsByApplicantId);) {
+		try (PreparedStatement preparedStatement = connection
+				.prepareStatement(QueryMap.getCustomerDetailsByApplicantId);) {
 			preparedStatement.setLong(1, applicantId);
-			try(ResultSet resultSet = preparedStatement.executeQuery();) {
+			try (ResultSet resultSet = preparedStatement.executeQuery();) {
 				while (resultSet.next()) {
 					newCustomer.setUci(new BigInteger(resultSet.getBigDecimal(1).toString()));
 					newCustomer.setUserId(resultSet.getString(2));
@@ -203,7 +220,7 @@ public class CustomerDaoImpl implements CustomerDao {
 					newApplicant.setLastName(resultSet.getString(6));
 					newApplicant.setFatherName(resultSet.getString(7));
 					newApplicant.setMotherName(resultSet.getString(8));
-					
+
 					java.sql.Date date = resultSet.getDate(9);
 					LocalDate dob = date.toLocalDate();
 					newApplicant.setDob(dob);
@@ -236,19 +253,74 @@ public class CustomerDaoImpl implements CustomerDao {
 					} else if (accountHolder.toUpperCase().equals("SECONDARY")) {
 						newApplicant.setAccountHolder(AccountHolder.SECONDARY);
 					}
-					
+
 					newApplicant.setExistingCustomer(true);
 					newApplicant.setApplicantStatus(ApplicantStatus.APPROVED);
-					//linkedApplication??
+					// linkedApplication??
 					newCustomer.setApplicant(newApplicant);
 				}
 			}
-		} catch(Exception exception) {
+		} catch (Exception exception) {
 			System.out.println(exception.getMessage());
 		}
 		return newCustomer;
 	}
 
+	@Override
+	public boolean checkCustomerByUsernameExists(String username) {
+		boolean result = false;
+		Connection connection = OracleConnection.callConnection();
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.checkUsername);) {
+			preparedStatement.setString(1, username);
+			try (ResultSet resultSet = preparedStatement.executeQuery();) {
+				int check = preparedStatement.executeUpdate();
+				
+				if(check==1) {
+					result = true;
+				}
+			}
+		} catch (Exception exception) {
+
+		}
+		return result;
+	}
+	
+	@Override
+	public BigInteger getHighestUciValue() {
+		BigInteger uci = new BigInteger("0");
+		Connection connection = OracleConnection.callConnection();
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.selectHighestUci);) {
+			try(ResultSet resultSet = preparedStatement.executeQuery();) {
+				while(resultSet.next()) {
+					uci= resultSet.getBigDecimal("uci").toBigInteger();	
+				}
+			}
+		} catch(Exception exception) {
+			System.out.println(exception.getMessage());
+		}
+		return uci;
+	}
+
+	@Override
+	public boolean checkCustomerExists(BigInteger uci) {
+		boolean result = false;
+		Connection connection = OracleConnection.callConnection();
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.checkUci);) {
+			String tempUci = uci.toString();
+			preparedStatement.setBigDecimal(1, new BigDecimal(tempUci));
+			try (ResultSet resultSet = preparedStatement.executeQuery();) {
+				int check = preparedStatement.executeUpdate();
+				
+				if(check==1) {
+					result = true;
+				}
+			}
+		} catch (Exception exception) {
+			//handle exception
+		}
+		return result;
+	}
+	
 	@Override
 	public boolean copy(String srcPath, String destPath) {
 		boolean isDone = false;
