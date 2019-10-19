@@ -42,11 +42,11 @@ public class AccountDaoImpl implements AccountDao {
 				preparedStatement.setInt(7, account.getTransId());
 				System.out.println("done!");
 
-				int index = preparedStatement.executeUpdate();
+				preparedStatement.executeUpdate();
+				result = true;
 				
-				if(index>0)
-					result = true;
-			} catch (SQLException exception1) {
+			} catch (SQLException exception) {
+				exception.printStackTrace();
 				throw new IBSCustomException(IBSException.SQLError);
 			}
 		}

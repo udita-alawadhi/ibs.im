@@ -6,7 +6,7 @@ public interface QueryMap {
 	// alternateMobileNumber, emailId, aadharNumber, panNumber, accountType,
 	// accountHolder, applicantStatus, applicationDate, linkedApplication,
 	// existingCustomer
-	public static String INSERT_APPLICANT_DETAILS = "INSERT INTO APPLICANTS VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	public static String INSERT_APPLICANT_DETAILS = "INSERT INTO APPLICANTS VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
 	//change
 	public static String GET_ALL_APPLICATIONS = "SELECT APPLICANT_ID, FIRST_NAME, LAST_NAME, FATHER_NAME, "

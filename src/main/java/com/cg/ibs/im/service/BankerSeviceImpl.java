@@ -179,6 +179,7 @@ public class BankerSeviceImpl implements BankerService {
 		account.setAccountType(newApplicant.getAccountType());
 		account.setAccountCreationDate(LocalDate.now());
 		account.setTransactionPassword("transacpass");
+		account.setTransId(10);
 		// set other details
 		return account;
 	}

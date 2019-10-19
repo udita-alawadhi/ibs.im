@@ -61,14 +61,16 @@ public class ApplicantDaoImpl implements ApplicantDao {
 				preparedStatement.setDate(16, dateOfApplication);
 
 				preparedStatement.setLong(17, applicant.getLinkedApplication());
-				preparedStatement.setBoolean(18, applicant.isExistingCustomer());
+//				preparedStatement.setBoolean(18, applicant.is);
 
+				System.out.println("cjhelc!!!!");
 				int check = preparedStatement.executeUpdate();
 				if (check > 0) {
 					result = true;
 
 				}
 			} catch (SQLException exception) {
+				exception.printStackTrace();
 				throw new IBSCustomException(IBSException.SQLError);
 			}
 		}

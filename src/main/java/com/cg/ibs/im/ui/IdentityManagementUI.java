@@ -480,6 +480,7 @@ public class IdentityManagementUI {
 				applicant1.setLinkedApplication(0);
 				applicant1.setApplicationDate(LocalDate.now());
 				System.out.println(applicant1.getApplicationDate());
+				System.out.println("cjhel");
 				customer.saveApplicantDetails(applicant1);
 				long applicantId = applicant1.getApplicantId();
 				customer.savePermanentAddress(applicantId, applicant1.getPermanentAddress());
