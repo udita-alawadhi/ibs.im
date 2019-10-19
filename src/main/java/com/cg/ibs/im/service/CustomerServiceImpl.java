@@ -193,6 +193,7 @@ public class CustomerServiceImpl implements CustomerService {
 	public boolean saveApplicantDetails(ApplicantBean applicant) throws IBSCustomException {
 
 		boolean result = false;
+		
 		if (applicant.getApplicantId() == 0) {
 			long applicantId = generateApplicantId();
 			while (applicantDao.isApplicantPresent(applicantId)) {
