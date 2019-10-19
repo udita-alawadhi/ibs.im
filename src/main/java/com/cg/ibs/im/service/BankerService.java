@@ -11,13 +11,13 @@ import com.cg.ibs.bean.CustomerBean;
 import com.cg.ibs.im.exception.IBSCustomException;
 
 public interface BankerService {
-	boolean verifyLogin(String user, String password);
+	boolean verifyLogin(String user, String password) throws IBSCustomException;
 	
-	Set<Long> viewPendingApplications();
+	Set<Long> viewPendingApplications() throws IBSCustomException;
 	
-	Set<Long> viewApprovedApplications();
+	Set<Long> viewApprovedApplications() throws IBSCustomException;
 	
-	Set<Long> viewDeniedApplications();
+	Set<Long> viewDeniedApplications() throws IBSCustomException;
 	
 	boolean updateStatus(long applicantId, ApplicantStatus applicantStatus) throws IBSCustomException;
 	
@@ -25,19 +25,19 @@ public interface BankerService {
 	
 	CustomerBean createNewCustomer(ApplicantBean applicant) throws IBSCustomException, SQLException;
 
-	boolean isApplicantPresentInPendingList(long applicantId);
+	boolean isApplicantPresentInPendingList(long applicantId) throws IBSCustomException;
 
-	boolean isApplicantPresent(long applicantId);
+	boolean isApplicantPresent(long applicantId) throws IBSCustomException;
 
 	ApplicantBean displayDetails(long applicantId) throws IBSCustomException;
 
 	String generateUsername(long applicantId) throws IBSCustomException;
 
-	boolean download(String destPath, String fileName);
+	boolean download(String destPath, String fileName) throws IBSCustomException;
 
 	List<String> getFilesAvialable();
 
-	AccountBean createNewAccount(ApplicantBean newApplicant);
+	AccountBean createNewAccount(ApplicantBean newApplicant) throws IBSCustomException;
 
 	AccountBean createNewAccount(CustomerBean newCustomer);
 }

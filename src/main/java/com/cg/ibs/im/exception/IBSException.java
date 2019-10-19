@@ -7,4 +7,7 @@ public interface IBSException {
 	public static String incorrectUsername = "INCORRECT USERNAME!";
 	public static String incorrectPassword = "INCORRECT PASSWORD!";
 	
+	public static String SQLError="DATA NOT FOUND";
+	public static String fileNotFound="FILE NOT FOUND";
+	public static String ioexception="INPUT NOT FOUND";
 }

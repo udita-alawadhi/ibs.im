@@ -6,17 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.cg.ibs.bean.AddressBean;
+import com.cg.ibs.im.exception.IBSCustomException;
+import com.cg.ibs.im.exception.IBSException;
 import com.cg.ibs.im.util.OracleConnection;
 import com.cg.ibs.im.util.QueryMap;
 
 public class AddressDaoImpl implements AddressDao {
 
 	@Override
-	public boolean savePermanentAddress(long applicantId, AddressBean address) {
+	public boolean savePermanentAddress(long applicantId, AddressBean address) throws IBSCustomException {
 		boolean result = false;
 		if (address != null) {
 			Connection connection = OracleConnection.callConnection();
-			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.savePermanentAddress);) {
+			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.SAVE_PERMANENT_ADDRESS);) {
 
 				preparedStatement.setLong(1, applicantId);
 
@@ -33,20 +35,19 @@ public class AddressDaoImpl implements AddressDao {
 				if (check > 0) {
 					result = true;
 				}
-			} catch (Exception exception) {
-				System.out.println(exception.getMessage());
-				// handle properly
+			} catch (SQLException exception) {
+				throw new IBSCustomException(IBSException.SQLError);
 			}
 		}
 		return result;
 	}
 
 	@Override
-	public boolean saveCurrentAddress(long applicantId, AddressBean address) {
+	public boolean saveCurrentAddress(long applicantId, AddressBean address) throws IBSCustomException {
 		boolean result = false;
 		if (address != null) {
 			Connection connection = OracleConnection.callConnection();
-			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.saveCurrentAddress);) {
+			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.SAVE_CURRENT_ADDRESS);) {
 
 				preparedStatement.setLong(1, applicantId);
 				preparedStatement.setString(2, address.getHouseNumber());
@@ -62,19 +63,18 @@ public class AddressDaoImpl implements AddressDao {
 				if (check > 0) {
 					result = true;
 				}
-			} catch (Exception exception) {
-				System.out.println(exception.getMessage());
-				// handle properly
+			} catch (SQLException exception) {
+				throw new IBSCustomException(IBSException.SQLError);
 			}
 		}
 		return result;
 	}
 
 	@Override
-	public AddressBean getPermanentAddress(long applicantId) {
+	public AddressBean getPermanentAddress(long applicantId) throws IBSCustomException {
 		AddressBean addressBean = new AddressBean();
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.getPermanentAddress);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.GET_PERMANENT_ADDRESS);) {
 			statement.setLong(1, applicantId);
 			try (ResultSet resultSet = statement.executeQuery();) {
 				while(resultSet.next()) {
@@ -89,16 +89,16 @@ public class AddressDaoImpl implements AddressDao {
 				}
 			}
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return addressBean;
 	}
 
 	@Override
-	public AddressBean getCurrentAddress(long applicantId) {
+	public AddressBean getCurrentAddress(long applicantId) throws IBSCustomException {
 		AddressBean addressBean1 = new AddressBean();
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.getCurrentAddress);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.GET_CURRENT_ADDRESS);) {
 			statement.setLong(1, applicantId);
 			try (ResultSet resultSet = statement.executeQuery();) {
 				while(resultSet.next()) {
@@ -113,7 +113,7 @@ public class AddressDaoImpl implements AddressDao {
 				}
 			}
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return addressBean1;
 	}

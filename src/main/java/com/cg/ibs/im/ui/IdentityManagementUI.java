@@ -225,221 +225,237 @@ public class IdentityManagementUI {
 
 	void pendingApplications() {
 		BufferedReader keyboardInput = new BufferedReader(new InputStreamReader(System.in));
-		Set<Long> pendingList = banker.viewPendingApplications();
-		while (pendingList.size() > 0) {
-			System.out.println("The list of the pending applicants is here:");
+		try {
+			Set<Long> pendingList = banker.viewPendingApplications();
+			while (pendingList.size() > 0) {
+				System.out.println("The list of the pending applicants is here:");
 
-			Iterator<Long> pendingIterator = pendingList.iterator();
-			while(pendingIterator.hasNext()) {
-				try {
-					long applicantId = pendingIterator.next();
-					if (customer.getApplicantDetails(applicantId).getAccountType() == AccountType.JOINT && customer.getApplicantDetails(applicantId).getAccountHolder() == AccountHolder.SECONDARY) {
-						continue;
-					} else {
-						System.out.println(
-								applicantId + "\t" + customer.getApplicantDetails(applicantId).getAccountType());
-					}
-				} catch (Exception exception) {
-					System.out.println(exception.getMessage());
-				}
-			}
-
-			System.out.println("Enter an application number to check details:");
-			long applicantId = scanner.nextLong();
-
-			while (!banker.isApplicantPresentInPendingList(applicantId)) {
-				System.out.println("applicant is not present. Please enter a valid id:");
-				applicantId = scanner.nextLong();
-			}
-			
-			try {
-				applicant = banker.displayDetails(applicantId);
-				if (applicant.getAccountType() == AccountType.INDIVIDUAL) {
-					System.out.println("---------------------------");
-					System.out.println(applicant.toString());
-				} else if (applicant.getAccountType() == AccountType.JOINT) {
-					System.out.println("---------------------------");
-					System.out.println("Primary Holder: ");
-					System.out.println(applicant.toString());
-					System.out.println("");
-					System.out.println("---------------------------");
-					long secondaryHolder = applicant.getLinkedApplication();
-					System.out.println("Secondary Holder: " + secondaryHolder);
-					ApplicantBean secondaryAccountHolder = banker.displayDetails(secondaryHolder);
-					System.out.println(secondaryAccountHolder.toString());
-				}
-				int index = -1;
-				List<String> fnms = banker.getFilesAvialable();
-				for (int i = 0; i < fnms.size(); i++) {
-					System.out.println(i + "\t" + fnms.get(i));
-				}
-				do {
-					System.out.println("Enter file index to download: ");
-					index = scanner.nextInt();
-					if (index < fnms.size()) {
-						System.out.println("Enter a download folder loc: ");
-						String dwnLoc = scanner.next();
-						banker.download(dwnLoc, fnms.get(index));
-						break;
-					} else {
-						System.out.println(index);
-						System.out.println("File doesn't exist");
-					}
-				} while (index >= fnms.size());
-
-			} catch (Exception exception) {
-				System.out.println(exception.getMessage());
-			}
-
-			System.out.println("------------------------");
-			System.out.println("Choose valid option:");
-			System.out.println("------------------------");
-			System.out.println("1.\tApprove application");
-			System.out.println("2.\tDeny application");
-			try {
-				String choice = keyboardInput.readLine();
-				while (!choice.equals("1") && !choice.equals("2")) {
-					System.out.println("Please enter a valid choice");
-					choice = keyboardInput.readLine();
-				}
-
-				if (choice.equals("1")) {
-
+				Iterator<Long> pendingIterator = pendingList.iterator();
+				while (pendingIterator.hasNext()) {
 					try {
-						ApplicantBean applicant = customer.getApplicantDetails(applicantId);
-						applicant.setApplicantStatus(ApplicantStatus.APPROVED);
-
-						if (applicant.getAccountType() == AccountType.JOINT) {
-							customer.storeApplicantDetails(applicant);
-
-							if (applicant.isExistingCustomer()) {
-
-							} else {
-								CustomerBean primaryCustomer = banker.createNewCustomer(applicant);
-
-								long secondaryApplicantId = applicant.getLinkedApplication();
-
-								ApplicantBean secondaryApplicant = customer.getApplicantDetails(secondaryApplicantId);
-
-								customer.saveApplicantDetails(secondaryApplicant);
-								CustomerBean secondaryCustomer = banker.createNewCustomer(secondaryApplicant);
-
-								System.out.println("UCI for primary customer: " + primaryCustomer.getUci());
-								System.out.println("UCI for secondary customer: " + secondaryCustomer.getUci());
-
-								// customer.storeApplicantDetails(secondaryApplicant);
-
-								for (AccountBean accountBean : primaryCustomer.getAccounts()) {
-									System.out.println("Account generated: " + accountBean.getAccountNumber());
-									System.out.println("Account type: " + accountBean.getAccountType());
-								}
-
-							}
-
-							// customer.saveApplicantDetails(applicant);
+						long applicantId = pendingIterator.next();
+						if (customer.getApplicantDetails(applicantId).getAccountType() == AccountType.JOINT && customer
+								.getApplicantDetails(applicantId).getAccountHolder() == AccountHolder.SECONDARY) {
+							continue;
 						} else {
-							if (applicant.isExistingCustomer()) {
-								AccountBean newAccount = banker.createNewAccount(applicant);
-								applicant.setApplicantStatus(ApplicantStatus.APPROVED);
-								customer.saveApplicantDetails(applicant);
-								CustomerBean newCustomer = customer
-										.getCustomerByApplicantId(applicant.getApplicantId());
-								Set<AccountBean> accounts = newCustomer.getAccounts();
-								accounts.add(newAccount);
-								newCustomer.setAccounts(accounts);
-								customer.storeCustomerDetails(newCustomer);
-
-								System.out.println(
-										"Account generated with account number: " + newAccount.getAccountNumber());
-								System.out.println(
-										"The application has been approved for Customer: " + newCustomer.getUci());
-							} else {
-								// make this function
-								customer.updateApplicantStatusToApproved(applicant);
-								System.out.println("applicant status to approved");
-								//coree t
-								CustomerBean newCustomer = banker.createNewCustomer(applicant);
-								System.out.println("customer created");
-								customer.storeCustomerDetails(newCustomer);
-								System.out.println(
-										"The status has been approved for the applicant.\nCustomer ID for primary customer: "
-												+ newCustomer.getUci());
-								Set<AccountBean> accounts = newCustomer.getAccounts();
-								for (AccountBean newAccount : accounts) {
-									System.out.println("Account generated: " + newAccount.getAccountNumber());
-								}
-							}
-
+							System.out.println(
+									applicantId + "\t" + customer.getApplicantDetails(applicantId).getAccountType());
 						}
-
-					} catch (Exception exception) {
-						System.out.println(exception.getMessage());
-					}
-
-				} else if (choice.equals("2")) {
-					try {
-						banker.updateStatus(applicantId, ApplicantStatus.DENIED);
-						System.out.println("The application has been denied.\n");
 					} catch (Exception exception) {
 						System.out.println(exception.getMessage());
 					}
 				}
-				pendingList = banker.viewPendingApplications();
+
+				System.out.println("Enter an application number to check details:");
+				long applicantId = scanner.nextLong();
+
+				while (!banker.isApplicantPresentInPendingList(applicantId)) {
+					System.out.println("applicant is not present. Please enter a valid id:");
+					applicantId = scanner.nextLong();
+				}
+
 				try {
-					if (pendingList.size() > 0) {
-						System.out.println("Do you want to keep reviewing applications?\n1. yes\n2. no");
-						String continueChoice = keyboardInput.readLine();
-						while (!continueChoice.equals("1") && !continueChoice.equals("2")) {
-							System.out.println(
-									"Please enter an appropriate value. Do you want to keep reviewing applications?\n1. yes\n2. no");
-							continueChoice = keyboardInput.readLine();
-						}
-						if (continueChoice.equals("2")) {
+					applicant = banker.displayDetails(applicantId);
+					if (applicant.getAccountType() == AccountType.INDIVIDUAL) {
+						System.out.println("---------------------------");
+						System.out.println(applicant.toString());
+					} else if (applicant.getAccountType() == AccountType.JOINT) {
+						System.out.println("---------------------------");
+						System.out.println("Primary Holder: ");
+						System.out.println(applicant.toString());
+						System.out.println("");
+						System.out.println("---------------------------");
+						long secondaryHolder = applicant.getLinkedApplication();
+						System.out.println("Secondary Holder: " + secondaryHolder);
+						ApplicantBean secondaryAccountHolder = banker.displayDetails(secondaryHolder);
+						System.out.println(secondaryAccountHolder.toString());
+					}
+					int index = -1;
+					List<String> fnms = banker.getFilesAvialable();
+					for (int i = 0; i < fnms.size(); i++) {
+						System.out.println(i + "\t" + fnms.get(i));
+					}
+					do {
+						System.out.println("Enter file index to download: ");
+						index = scanner.nextInt();
+						if (index < fnms.size()) {
+							System.out.println("Enter a download folder loc: ");
+							String dwnLoc = scanner.next();
+							banker.download(dwnLoc, fnms.get(index));
 							break;
+						} else {
+							System.out.println(index);
+							System.out.println("File doesn't exist");
 						}
+					} while (index >= fnms.size());
+				} catch (Exception exception) {
+					System.out.println(exception.getMessage());
+				}
+
+				System.out.println("------------------------");
+				System.out.println("Choose valid option:");
+				System.out.println("------------------------");
+				System.out.println("1.\tApprove application");
+				System.out.println("2.\tDeny application");
+				try {
+					String choice = keyboardInput.readLine();
+
+					while (!choice.equals("1") && !choice.equals("2")) {
+						System.out.println("Please enter a valid choice");
+						choice = keyboardInput.readLine();
+					}
+
+					if (choice.equals("1")) {
+
+						try {
+							ApplicantBean applicant = customer.getApplicantDetails(applicantId);
+							applicant.setApplicantStatus(ApplicantStatus.APPROVED);
+
+							if (applicant.getAccountType() == AccountType.JOINT) {
+								customer.storeApplicantDetails(applicant);
+
+								if (applicant.isExistingCustomer()) {
+
+								} else {
+									CustomerBean primaryCustomer = banker.createNewCustomer(applicant);
+
+									long secondaryApplicantId = applicant.getLinkedApplication();
+
+									ApplicantBean secondaryApplicant = customer
+											.getApplicantDetails(secondaryApplicantId);
+
+									customer.saveApplicantDetails(secondaryApplicant);
+									CustomerBean secondaryCustomer = banker.createNewCustomer(secondaryApplicant);
+
+									System.out.println("UCI for primary customer: " + primaryCustomer.getUci());
+									System.out.println("UCI for secondary customer: " + secondaryCustomer.getUci());
+
+									// customer.storeApplicantDetails(secondaryApplicant);
+
+									for (AccountBean accountBean : primaryCustomer.getAccounts()) {
+										System.out.println("Account generated: " + accountBean.getAccountNumber());
+										System.out.println("Account type: " + accountBean.getAccountType());
+									}
+
+								}
+
+								// customer.saveApplicantDetails(applicant);
+							} else {
+								if (applicant.isExistingCustomer()) {
+									AccountBean newAccount = banker.createNewAccount(applicant);
+									applicant.setApplicantStatus(ApplicantStatus.APPROVED);
+									customer.saveApplicantDetails(applicant);
+									CustomerBean newCustomer = customer
+											.getCustomerByApplicantId(applicant.getApplicantId());
+									Set<AccountBean> accounts = newCustomer.getAccounts();
+									accounts.add(newAccount);
+									newCustomer.setAccounts(accounts);
+									customer.storeCustomerDetails(newCustomer);
+
+									System.out.println(
+											"Account generated with account number: " + newAccount.getAccountNumber());
+									System.out.println(
+											"The application has been approved for Customer: " + newCustomer.getUci());
+								} else {
+									// make this function
+									customer.updateApplicantStatusToApproved(applicant);
+									System.out.println("applicant status to approved");
+									// coree t
+									CustomerBean newCustomer = banker.createNewCustomer(applicant);
+									System.out.println("customer created");
+									customer.storeCustomerDetails(newCustomer);
+									System.out.println(
+											"The status has been approved for the applicant.\nCustomer ID for primary customer: "
+													+ newCustomer.getUci());
+									Set<AccountBean> accounts = newCustomer.getAccounts();
+									for (AccountBean newAccount : accounts) {
+										System.out.println("Account generated: " + newAccount.getAccountNumber());
+									}
+								}
+
+							}
+
+						} catch (Exception exception) {
+							System.out.println(exception.getMessage());
+						}
+
+					} else if (choice.equals("2")) {
+						try {
+							banker.updateStatus(applicantId, ApplicantStatus.DENIED);
+							System.out.println("The application has been denied.\n");
+						} catch (Exception exception) {
+							System.out.println(exception.getMessage());
+						}
+					}
+					pendingList = banker.viewPendingApplications();
+					try {
+						if (pendingList.size() > 0) {
+							System.out.println("Do you want to keep reviewing applications?\n1. yes\n2. no");
+							String continueChoice = keyboardInput.readLine();
+							while (!continueChoice.equals("1") && !continueChoice.equals("2")) {
+								System.out.println(
+										"Please enter an appropriate value. Do you want to keep reviewing applications?\n1. yes\n2. no");
+								continueChoice = keyboardInput.readLine();
+							}
+							if (continueChoice.equals("2")) {
+								break;
+							}
+						}
+					} catch (Exception exception) {
+						System.out.println(exception.getMessage());
 					}
 				} catch (Exception exception) {
 					System.out.println(exception.getMessage());
 				}
-			} catch (Exception exception) {
-				System.out.println(exception.getMessage());
 			}
-		}
-		if (pendingList.size() == 0) {
-			System.out.println("There are no pending applicant requests.");
+			if (pendingList.size() == 0) {
+				System.out.println("There are no pending applicant requests.");
+
+			}
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
 		}
 
 	}
 
 	void approvedApplications() {
-		Set<Long> approvedList = banker.viewApprovedApplications();
-		if (approvedList.size() > 0) {
-			System.out.println("The list of the approved applications is here: ");
-			for (long applicantId : approvedList) {
-				try {
+		try {
+
+			Set<Long> approvedList = banker.viewApprovedApplications();
+
+			if (approvedList.size() > 0) {
+				System.out.println("The list of the approved applications is here: ");
+				for (long applicantId : approvedList) {
+
 					System.out.println(applicantId + "\t" + customer.getApplicantDetails(applicantId).getAccountType());
-				} catch (Exception exception) {
-					System.out.println(exception.getMessage());
+
 				}
+			} else {
+				System.out.println("There are no approved applications.");
 			}
-		} else {
-			System.out.println("There are no approved applications.");
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
 		}
 	}
 
 	void deniedApplications() {
-		Set<Long> deniedList = banker.viewDeniedApplications();
-		if (deniedList.size() > 0) {
-			System.out.println("The list of the denied applications is here: ");
-			for (long applicantId : deniedList) {
-				try {
-					System.out.println(applicantId + "\t" + customer.getApplicantDetails(applicantId).getAccountType());
-				} catch (Exception exception) {
-					System.out.println(exception.getMessage());
+		try {
+			Set<Long> deniedList = banker.viewDeniedApplications();
+			if (deniedList.size() > 0) {
+				System.out.println("The list of the denied applications is here: ");
+				for (long applicantId : deniedList) {
+					try {
+						System.out.println(
+								applicantId + "\t" + customer.getApplicantDetails(applicantId).getAccountType());
+					} catch (Exception exception) {
+						System.out.println(exception.getMessage());
+					}
 				}
+			} else {
+				System.out.println("There are no denied applications.");
 			}
-		} else {
-			System.out.println("There are no denied applications.");
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
 		}
 	}
 
@@ -463,6 +479,7 @@ public class IdentityManagementUI {
 				applicant1.setApplicantStatus(ApplicantStatus.PENDING);
 				applicant1.setLinkedApplication(0);
 				applicant1.setApplicationDate(LocalDate.now());
+				System.out.println(applicant1.getApplicationDate());
 				customer.saveApplicantDetails(applicant1);
 				long applicantId = applicant1.getApplicantId();
 				customer.savePermanentAddress(applicantId, applicant1.getPermanentAddress());
@@ -646,39 +663,41 @@ public class IdentityManagementUI {
 		Gender genderChoice = null;
 		System.out.println("Choose your gender from the menu:");
 		for (Gender menu : Gender.values()) {
-			System.out.println(menu.ordinal() + "\t" + menu);
+			System.out.println(menu.ordinal() + 1 + "\t" + menu);
 		}
 		System.out.println("Choice");
-		int gender = 0;
-		String ordinal = scanner.next();
+		try {
+			int gender = 0;
+			String ordinal = keyboardInput.readLine();
+			boolean check = true;
+			while(check) {
+				if (ordinal.equals("1") || ordinal.equals("2") || ordinal.equals("3")) {
+					gender = Integer.parseInt(ordinal);
+					check = false;
+				} else {
+					System.out.println("Please re-enter a valid option");
+					ordinal = keyboardInput.readLine();
+				}
+			}
 
-		boolean check = true;
-		while (check) {
-			if (ordinal.equals("1") || ordinal.equals("2") || ordinal.equals("3") || ordinal.equals("4")) {
-				gender = Integer.parseInt(ordinal);
-				check = false;
-			} else {
-				System.out.println("Please Re-enter: ");
-				ordinal = scanner.next();
+			if (0 < gender && Gender.values().length >= gender) {
+				genderChoice = Gender.values()[gender-1];
+				switch (genderChoice) {
+				case MALE:
+					applicant.setGender(Gender.MALE);
+					break;
+				case FEMALE:
+					applicant.setGender(Gender.FEMALE);
+					break;
+				case OTHERS:
+					applicant.setGender(Gender.OTHERS);
+					break;
+				}
 			}
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
 		}
-		if (0 <= gender && Gender.values().length > gender) {
-			genderChoice = Gender.values()[gender];
-			switch (genderChoice) {
-			case MALE:
-				applicant.setGender(Gender.MALE);
-				break;
-			case FEMALE:
-				applicant.setGender(Gender.FEMALE);
-				break;
-			case OTHERS:
-				applicant.setGender(Gender.OTHERS);
-				break;
-			}
-		} else {
-			System.out.println("Please enter a valid option.");
-			genderChoice = null;
-		}
+		
 
 		// Permanent Address
 		AddressBean address = addAddress();
@@ -871,8 +890,7 @@ public class IdentityManagementUI {
 			}
 			try {
 				if (customer.login(userUci, password)) {
-					
-					
+
 					newCustomer = customer.getCustomerDetails(userUci);
 					if (customer.firstLogin(userUci)) {
 						firstLogin(userUci, password);

@@ -13,19 +13,19 @@ public interface CustomerDao {
 	
 	CustomerBean getCustomerDetails(String uci) throws IBSCustomException;
 	
-	Set<BigInteger> getAllCustomers();
+	Set<BigInteger> getAllCustomers() throws IBSCustomException;
 
-	CustomerBean getCustomerByApplicantId(long applicantId);
+	CustomerBean getCustomerByApplicantId(long applicantId) throws IBSCustomException;
 
-	boolean copy(String srcPath, String destPath);
+	boolean copy(String srcPath, String destPath) throws IBSCustomException;
 
-	boolean updatePassword(CustomerBean customer, String password);
+	boolean updatePassword(CustomerBean customer, String password) throws IBSCustomException;
 
-	boolean updateLoginCount(CustomerBean customer);
+	boolean updateLoginCount(CustomerBean customer) throws IBSCustomException;
 
-	boolean checkCustomerByUsernameExists(String username);
+	boolean checkCustomerByUsernameExists(String username) throws IBSCustomException;
 
-	BigInteger getHighestUciValue();
+	BigInteger getHighestUciValue() throws IBSCustomException;
 
-	boolean checkCustomerExists(BigInteger uci);
+	boolean checkCustomerExists(BigInteger uci) throws IBSCustomException;
 }

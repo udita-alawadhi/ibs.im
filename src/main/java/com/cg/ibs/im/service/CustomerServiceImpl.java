@@ -190,7 +190,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean saveApplicantDetails(ApplicantBean applicant) throws IBSCustomException, SQLException {
+	public boolean saveApplicantDetails(ApplicantBean applicant) throws IBSCustomException {
 
 		boolean result = false;
 		if (applicant.getApplicantId() == 0) {
@@ -224,7 +224,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean saveCurrentAddress(long applicantId, AddressBean address) {
+	public boolean saveCurrentAddress(long applicantId, AddressBean address)  throws IBSCustomException {
 		boolean result = false;
 		if(address!=null) {
 			addressDao.saveCurrentAddress(applicantId, address);
@@ -234,7 +234,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 	
 	@Override
-	public boolean savePermanentAddress(long applicantId, AddressBean address) {
+	public boolean savePermanentAddress(long applicantId, AddressBean address)  throws IBSCustomException{
 		boolean result = false;
 		if(address!=null) {
 			addressDao.savePermanentAddress(applicantId, address);
@@ -270,7 +270,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean upload(String srcPath) {
+	public boolean upload(String srcPath)  throws IBSCustomException {
 		File updLoc = new File(CustomerDaoImpl.UPLOADS_LOC);
 		while (!updLoc.exists()) {
 			updLoc.mkdir();
@@ -282,7 +282,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean updateApplicantStatusToApproved(ApplicantBean applicant) {
+	public boolean updateApplicantStatusToApproved(ApplicantBean applicant)  throws IBSCustomException {
 		boolean result = false;
 
 		if (applicantDao.updateStatusToApproved(applicant)) {
@@ -292,7 +292,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean updateLinkedApplication(ApplicantBean applicant) {
+	public boolean updateLinkedApplication(ApplicantBean applicant)  throws IBSCustomException{
 		boolean result = false;
 
 		if (applicantDao.updateLinkedApplication(applicant)) {
@@ -302,7 +302,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean storeApplicantDetails(ApplicantBean applicant) throws SQLException {
+	public boolean storeApplicantDetails(ApplicantBean applicant) throws IBSCustomException{
 		boolean result = false;
 		if (applicant != null) {
 			applicantDao.saveApplicant(applicant);
@@ -313,8 +313,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public CustomerBean getCustomerByApplicantId(long applicantId) {
-		System.out.println("reached getCustomerByApplicantId");
+	public CustomerBean getCustomerByApplicantId(long applicantId) throws IBSCustomException {
 		CustomerBean customer = customerDao.getCustomerByApplicantId(applicantId);
 		return customer;
 	}

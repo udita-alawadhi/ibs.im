@@ -50,25 +50,25 @@ public interface CustomerService {
 
 	ApplicantBean getApplicantDetails(long applicantId) throws IBSCustomException;
 
-	boolean storeApplicantDetails(ApplicantBean applicant) throws SQLException;
+	boolean storeApplicantDetails(ApplicantBean applicant) throws SQLException, IBSCustomException;
 
-	CustomerBean getCustomerByApplicantId(long applicantId);
+	CustomerBean getCustomerByApplicantId(long applicantId) throws IBSCustomException;
 
 	boolean isCustomerValid(String uci) throws IBSCustomException;
 
-	boolean upload(String srcPath);
+	boolean upload(String srcPath) throws IBSCustomException;
 
 	long generatedApplicantId();
 
-	boolean updateApplicantStatusToApproved(ApplicantBean applicant);
+	boolean updateApplicantStatusToApproved(ApplicantBean applicant) throws IBSCustomException;
 
-	boolean updateLinkedApplication(ApplicantBean applicant);
+	boolean updateLinkedApplication(ApplicantBean applicant) throws IBSCustomException;
 
 	boolean updateLoginCount(CustomerBean customer) throws IBSCustomException;
 
-	boolean saveCurrentAddress(long applicantId, AddressBean address);
+	boolean saveCurrentAddress(long applicantId, AddressBean address) throws IBSCustomException;
 
-	boolean savePermanentAddress(long applicantId, AddressBean address);
+	boolean savePermanentAddress(long applicantId, AddressBean address) throws IBSCustomException;
 
 
 }

@@ -52,24 +52,24 @@ public class BankerSeviceImpl implements BankerService {
 	}
 
 	@Override
-	public boolean verifyLogin(String user, String password) {
+	public boolean verifyLogin(String user, String password) throws IBSCustomException{
 		boolean result = false;
 		result = applicantDao.validateBankLogin(user, password);
 		return result;
 	}
 
 	@Override
-	public Set<Long> viewPendingApplications() {
+	public Set<Long> viewPendingApplications() throws IBSCustomException {
 		return applicantDao.getApplicantsByStatus(ApplicantStatus.PENDING);
 	}
 
 	@Override
-	public Set<Long> viewApprovedApplications() {
+	public Set<Long> viewApprovedApplications() throws IBSCustomException{
 		return applicantDao.getApplicantsByStatus(ApplicantStatus.APPROVED);
 	}
 
 	@Override
-	public Set<Long> viewDeniedApplications() {
+	public Set<Long> viewDeniedApplications() throws IBSCustomException {
 		return applicantDao.getApplicantsByStatus(ApplicantStatus.DENIED);
 	}
 
@@ -139,6 +139,7 @@ public class BankerSeviceImpl implements BankerService {
 			customerUci = generateUci();
 			// change this
 		}
+		System.out.println(customerUci);
 		customer.setUci(customerUci);
 		customer.setApplicant(applicant);
 		customer.setUserId(generateUsername(applicantId));
@@ -153,6 +154,7 @@ public class BankerSeviceImpl implements BankerService {
 			CustomerBean customer2 = customerService.getCustomerByApplicantId(applicant.getLinkedApplication());
 			customer.setAccounts(customer2.getAccounts());// get account number of linkedApplicantId
 		}
+		System.out.println(accountDao.saveAccount(customerUci, account));
 		applicant.setExistingCustomer(true);
 		applicant.setApplicantStatus(ApplicantStatus.APPROVED);
 		customerService.updateApplicantStatusToApproved(applicant);
@@ -167,7 +169,7 @@ public class BankerSeviceImpl implements BankerService {
 	}
 
 	@Override
-	public AccountBean createNewAccount(ApplicantBean newApplicant) {
+	public AccountBean createNewAccount(ApplicantBean newApplicant) throws IBSCustomException{
 		BigInteger accountNumber = generateAccountNumber();
 		while (accountDao.checkAccountExists(accountNumber)) {
 			accountNumber = generateAccountNumber();
@@ -176,6 +178,7 @@ public class BankerSeviceImpl implements BankerService {
 		account.setCurrentBalance(new BigDecimal("0.00"));
 		account.setAccountType(newApplicant.getAccountType());
 		account.setAccountCreationDate(LocalDate.now());
+		account.setTransactionPassword("transacpass");
 		// set other details
 		return account;
 	}
@@ -197,7 +200,7 @@ public class BankerSeviceImpl implements BankerService {
 
 	}
 
-	public AddressBean getPermanentAddress(long applicantId) {
+	public AddressBean getPermanentAddress(long applicantId)  throws IBSCustomException {
 		AddressBean address = new AddressBean();
 		if (applicantId != 0) {
 			address = addressDao.getPermanentAddress(applicantId);
@@ -205,7 +208,7 @@ public class BankerSeviceImpl implements BankerService {
 		return address;
 	}
 
-	public AddressBean getCurrentAddress(long applicantId) {
+	public AddressBean getCurrentAddress(long applicantId)  throws IBSCustomException {
 		AddressBean address = new AddressBean();
 		if (applicantId != 0) {
 			address = addressDao.getCurrentAddress(applicantId);
@@ -224,14 +227,14 @@ public class BankerSeviceImpl implements BankerService {
 	}
 
 	@Override
-	public boolean download(String destPath, String fileName) {
+	public boolean download(String destPath, String fileName)  throws IBSCustomException {
 		String srcPath = CustomerDaoImpl.UPLOADS_LOC + "/" + fileName;
 		destPath += "/" + fileName;
 		return customerDao.copy(srcPath, destPath);
 	}
 
 	@Override
-	public boolean isApplicantPresent(long applicantId) {
+	public boolean isApplicantPresent(long applicantId)  throws IBSCustomException {
 		boolean result = false;
 		if (applicantId != 0) {
 			result = applicantDao.isApplicantPresent(applicantId);
@@ -241,7 +244,7 @@ public class BankerSeviceImpl implements BankerService {
 	}
 
 	@Override
-	public boolean isApplicantPresentInPendingList(long applicantId) {
+	public boolean isApplicantPresentInPendingList(long applicantId)  throws IBSCustomException{
 		boolean result = false;
 		if (applicantId != 0) {
 			Set<Long> pendingApplicants = applicantDao.getApplicantsByStatus(ApplicantStatus.PENDING);

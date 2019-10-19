@@ -31,13 +31,12 @@ public class ApplicantDaoImpl implements ApplicantDao {
 
 	private ApplicantBean newApplicant = new ApplicantBean();
 
-	// COMPLETEEEDD!!!!!!!!
 	@Override
-	public boolean saveApplicant(ApplicantBean applicant) throws SQLException {
+	public boolean saveApplicant(ApplicantBean applicant) throws IBSCustomException {
 		boolean result = false;
 		if (applicant != null) {
 			Connection connection = OracleConnection.callConnection();
-			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.insertApplicantDetails);) {
+			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.INSERT_APPLICANT_DETAILS);) {
 
 				preparedStatement.setLong(1, applicant.getApplicantId());
 
@@ -70,7 +69,7 @@ public class ApplicantDaoImpl implements ApplicantDao {
 
 				}
 			} catch (SQLException exception) {
-				System.out.println(exception.getMessage());
+				throw new IBSCustomException(IBSException.SQLError);
 			}
 		}
 
@@ -78,45 +77,45 @@ public class ApplicantDaoImpl implements ApplicantDao {
 	}
 
 	@Override
-	public boolean updateStatusToApproved(ApplicantBean applicant) {
+	public boolean updateStatusToApproved(ApplicantBean applicant) throws IBSCustomException {
 		boolean result = false;
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.updateApplicantStatus);) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.UPDATE_APPLICANT_STATUS);) {
 			preparedStatement.setLong(1, applicant.getApplicantId());
 
 			int check = preparedStatement.executeUpdate();
 			if (check == 1) {
 				result = true;
 			}
-		} catch (Exception exception) {
-			System.out.println(exception.getMessage());
+		} catch (SQLException exception) {
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return result;
 	}
 
 	@Override
-	public boolean updateLinkedApplication(ApplicantBean applicant) {
+	public boolean updateLinkedApplication(ApplicantBean applicant) throws IBSCustomException{
 		boolean result = false;
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.updateLinkedApplication);) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.UPDATE_LINKED_APPLICATION);) {
 			preparedStatement.setLong(1, applicant.getApplicantId());
 
 			int check = preparedStatement.executeUpdate();
 			if (check == 1) {
 				result = true;
 			}
-		} catch (Exception exception) {
-			System.out.println(exception.getMessage());
+		} catch (SQLException exception) {
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return result;
 	}
 
 	@Override
-	public Set<Long> getAllApplicants() {
+	public Set<Long> getAllApplicants() throws IBSCustomException{
 		Set<Long> applicantSet = new HashSet<Long>();
 
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.getAllApplications);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.GET_ALL_APPLICATIONS);) {
 			try (ResultSet resultSet = statement.executeQuery();) {
 				{
 					int index = 1;
@@ -129,17 +128,17 @@ public class ApplicantDaoImpl implements ApplicantDao {
 				}
 			}
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return applicantSet;
 	}
 
 	@Override
-	public boolean isApplicantPresent(long applicantId) {
+	public boolean isApplicantPresent(long applicantId) throws IBSCustomException{
 		boolean result = false;
 
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.getApplicantDetails);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.GET_APPLICANT_DETAILS);) {
 			statement.setLong(1, applicantId);
 			int updateCheck = statement.executeUpdate();
 			try (ResultSet resultSet = statement.executeQuery();) {
@@ -149,16 +148,15 @@ public class ApplicantDaoImpl implements ApplicantDao {
 			}
 
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return result;
 	}
 
-	// COMPLETEEEDD!!!!!!!!
 	@Override
-	public ApplicantBean getApplicantDetails(long applicantId) {
+	public ApplicantBean getApplicantDetails(long applicantId) throws IBSCustomException{
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.getApplicantDetails);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.GET_APPLICANT_DETAILS);) {
 			statement.setLong(1, applicantId);
 			try (ResultSet resultSet = statement.executeQuery();) {
 				if (resultSet.next()) {
@@ -210,25 +208,24 @@ public class ApplicantDaoImpl implements ApplicantDao {
 
 					java.sql.Date applicationDate = resultSet.getDate(16);
 					LocalDate dateOfApplication = applicationDate.toLocalDate();
-					newApplicant.setDob(dateOfApplication);
+					newApplicant.setApplicationDate(dateOfApplication);
 
 					newApplicant.setLinkedApplication(resultSet.getLong(17));
 					newApplicant.setExistingCustomer(resultSet.getBoolean(18));
 				}
 			}
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return newApplicant;
 	}
 
-//	COMPLETED!!!!!!!!!!!!!
 	@Override
-	public Set<Long> getApplicantsByStatus(ApplicantStatus applicantStatus) {
+	public Set<Long> getApplicantsByStatus(ApplicantStatus applicantStatus) throws IBSCustomException{
 		Set<Long> applicantSet = new HashSet<Long>();
 		Connection connection = OracleConnection.callConnection();
 
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.getAllApplicationsByStatus);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.GET_ALL_APPLICATIONS_BY_STATUS);) {
 			statement.setString(1, applicantStatus.toString().toUpperCase());
 			try (ResultSet resultSet = statement.executeQuery();) {
 
@@ -238,18 +235,18 @@ public class ApplicantDaoImpl implements ApplicantDao {
 				}
 			}
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 
 		return applicantSet;
 	}
 
 	@Override
-	public boolean validateBankLogin(String userId, String password) {
+	public boolean validateBankLogin(String userId, String password) throws IBSCustomException{
 		boolean status = false;
 		Connection connection = OracleConnection.callConnection();
 		if (checkIfBankerExists(userId)) {
-			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.bankerDetails);) {
+			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.BANKER_DETAILS);) {
 				preparedStatement.setString(1, userId);
 				try (ResultSet resultSet = preparedStatement.executeQuery();) {
 					if (resultSet.next()) {
@@ -259,18 +256,18 @@ public class ApplicantDaoImpl implements ApplicantDao {
 						}
 					}
 				}
-			} catch (SQLException e) {
-				System.out.println(e.getMessage());
+			} catch (SQLException exception) {
+				throw new IBSCustomException(IBSException.SQLError);
 			}
 		}
 
 		return status;
 	}
 
-	public boolean checkIfBankerExists(String userId) {
+	public boolean checkIfBankerExists(String userId) throws IBSCustomException{
 		boolean status = false;
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.bankerDetails);) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.BANKER_DETAILS);) {
 			preparedStatement.setString(1, userId);
 
 			int index = preparedStatement.executeUpdate();
@@ -278,7 +275,7 @@ public class ApplicantDaoImpl implements ApplicantDao {
 				status = true;
 			}
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return status;
 	}

@@ -39,11 +39,11 @@ public class CustomerDaoImpl implements CustomerDao {
 	CustomerBean newCustomer = new CustomerBean();
 
 	@Override
-	public boolean saveCustomer(CustomerBean newCustomer) {
+	public boolean saveCustomer(CustomerBean newCustomer) throws IBSCustomException{
 		if (newCustomer != null) {
 			boolean result = false;
 			Connection connection = OracleConnection.callConnection();
-			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.insertCustomersDetails);) {
+			try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.INSERT_CUSTOMERS_DETAILS);) {
 				preparedStatement.setBigDecimal(1, new BigDecimal(newCustomer.getUci()));
 				preparedStatement.setString(2, newCustomer.getUserId());
 				preparedStatement.setString(3, newCustomer.getPassword());
@@ -74,7 +74,7 @@ public class CustomerDaoImpl implements CustomerDao {
 				}
 				return result;
 			} catch (SQLException exception) {
-				System.out.println(exception.getMessage());
+				throw new IBSCustomException(IBSException.SQLError);
 			}
 
 		}
@@ -83,10 +83,10 @@ public class CustomerDaoImpl implements CustomerDao {
 	}
 
 	@Override
-	public CustomerBean getCustomerDetails(String uci) { // why cusomer???check!!
+	public CustomerBean getCustomerDetails(String uci) throws IBSCustomException{ // why cusomer???check!!
 		CustomerBean newCustomer2 = new CustomerBean();
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.getCustomerDetails);) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.GET_CUSTOMER_DETAILS);) {
 			preparedStatement.setString(1, uci);
 			try (ResultSet resultSet = preparedStatement.executeQuery();) {
 
@@ -140,16 +140,16 @@ public class CustomerDaoImpl implements CustomerDao {
 				}
 			}
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return newCustomer2;
 	}
 
 	@Override
-	public boolean updatePassword(CustomerBean customer, String password) {
+	public boolean updatePassword(CustomerBean customer, String password) throws IBSCustomException{
 		boolean result = false;
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.updateCustomerPassword);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.UPDATE_CUSTOMER_PASSWORD);) {
 			statement.setString(1, password);
 			statement.setBigDecimal(2, new BigDecimal(customer.getUci()));
 			int check = statement.executeUpdate();
@@ -157,35 +157,35 @@ public class CustomerDaoImpl implements CustomerDao {
 				result = true;
 			}
 
-		} catch (Exception exception) {
-
+		} catch (SQLException exception) {
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return result;
 	}
 
 	@Override
-	public boolean updateLoginCount(CustomerBean customer) {
+	public boolean updateLoginCount(CustomerBean customer) throws IBSCustomException {
 		boolean result = false;
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.updateLoginCount);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.UPDATE_LOGIN_COUNT);) {
 			statement.setBigDecimal(1, new BigDecimal(customer.getUci()));
 			int check = statement.executeUpdate();
 			if (check == 1) {
 				result = true;
 			}
 
-		} catch (Exception exception) {
-
+		} catch (SQLException exception) {
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return result;
 	}
 
 	@Override
-	public Set<BigInteger> getAllCustomers() {
+	public Set<BigInteger> getAllCustomers() throws IBSCustomException{
 		Set<BigInteger> customerSet = new HashSet<BigInteger>();
 
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement statement = connection.prepareStatement(QueryMap.getAllCustomers);) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryMap.GET_ALL_CUSTOMERS);) {
 			try (ResultSet resultSet = statement.executeQuery();) {
 				{
 					int index = 1;
@@ -199,16 +199,16 @@ public class CustomerDaoImpl implements CustomerDao {
 				}
 			}
 		} catch (SQLException exception) {
-			System.out.println(exception.getMessage());
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return customerSet;
 	}
 
-	public CustomerBean getCustomerByApplicantId(long applicantId) {
+	public CustomerBean getCustomerByApplicantId(long applicantId) throws IBSCustomException{
 
 		Connection connection = OracleConnection.callConnection();
 		try (PreparedStatement preparedStatement = connection
-				.prepareStatement(QueryMap.getCustomerDetailsByApplicantId);) {
+				.prepareStatement(QueryMap.GET_CUSTOMER_DETAILS_BY_APPLICANTID);) {
 			preparedStatement.setLong(1, applicantId);
 			try (ResultSet resultSet = preparedStatement.executeQuery();) {
 				while (resultSet.next()) {
@@ -260,17 +260,17 @@ public class CustomerDaoImpl implements CustomerDao {
 					newCustomer.setApplicant(newApplicant);
 				}
 			}
-		} catch (Exception exception) {
-			System.out.println(exception.getMessage());
+		} catch (SQLException exception) {
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return newCustomer;
 	}
 
 	@Override
-	public boolean checkCustomerByUsernameExists(String username) {
+	public boolean checkCustomerByUsernameExists(String username) throws IBSCustomException{
 		boolean result = false;
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.checkUsername);) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.CHECK_USERNAME);) {
 			preparedStatement.setString(1, username);
 			try (ResultSet resultSet = preparedStatement.executeQuery();) {
 				int check = preparedStatement.executeUpdate();
@@ -279,33 +279,33 @@ public class CustomerDaoImpl implements CustomerDao {
 					result = true;
 				}
 			}
-		} catch (Exception exception) {
-
+		} catch (SQLException exception) {
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return result;
 	}
 	
 	@Override
-	public BigInteger getHighestUciValue() {
+	public BigInteger getHighestUciValue() throws IBSCustomException{
 		BigInteger uci = new BigInteger("0");
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.selectHighestUci);) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.SELECT_HIGHEST_UCI);) {
 			try(ResultSet resultSet = preparedStatement.executeQuery();) {
 				while(resultSet.next()) {
 					uci= resultSet.getBigDecimal("uci").toBigInteger();	
 				}
 			}
-		} catch(Exception exception) {
-			System.out.println(exception.getMessage());
+		} catch(SQLException exception) {
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return uci;
 	}
 
 	@Override
-	public boolean checkCustomerExists(BigInteger uci) {
+	public boolean checkCustomerExists(BigInteger uci) throws IBSCustomException {
 		boolean result = false;
 		Connection connection = OracleConnection.callConnection();
-		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.checkUci);) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(QueryMap.CHECK_UCI);) {
 			String tempUci = uci.toString();
 			preparedStatement.setBigDecimal(1, new BigDecimal(tempUci));
 			try (ResultSet resultSet = preparedStatement.executeQuery();) {
@@ -315,14 +315,14 @@ public class CustomerDaoImpl implements CustomerDao {
 					result = true;
 				}
 			}
-		} catch (Exception exception) {
-			//handle exception
+		} catch (SQLException exception) {
+			throw new IBSCustomException(IBSException.SQLError);
 		}
 		return result;
 	}
 	
 	@Override
-	public boolean copy(String srcPath, String destPath) {
+	public boolean copy(String srcPath, String destPath) throws IBSCustomException{
 		boolean isDone = false;
 		File srcFile = new File(srcPath);
 		File destFile = new File(destPath);
@@ -336,10 +336,10 @@ public class CustomerDaoImpl implements CustomerDao {
 				}
 				isDone = true;
 			} catch (IOException exception) {
-				// raise a user defiend exception
+				throw new IBSCustomException(IBSException.fileNotFound);
 			}
 		} else {
-			// throw your exception
+			throw new IBSCustomException(IBSException.ioexception);
 		}
 		return isDone;
 	}

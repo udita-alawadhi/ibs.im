@@ -13,6 +13,7 @@ public class AccountBean {
 	private AccountType accountType;
 	private String transactionPassword;
 	private LocalDate accountCreationDate;
+	private int transId=0;
 
 	public AccountBean() {
 		super();
@@ -82,6 +83,16 @@ public class AccountBean {
 
 	public void setAccountCreationDate(LocalDate accountCreationDate) {
 		this.accountCreationDate = accountCreationDate;
+	}
+
+
+	public int getTransId() {
+		return transId;
+	}
+
+
+	public void setTransId(int transId) {
+		this.transId = transId;
 	}
 
 }
