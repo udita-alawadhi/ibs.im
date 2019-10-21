@@ -1,0 +1,76 @@
+C:\Users\HP\Desktop\sample.pdf
+
+create table applicants 
+(APPLICANT_ID number(5), 
+FIRST_NAME varchar2(20), 
+LAST_NAME varchar2(20), 
+FATHER_NAME varchar2(20),
+MOTHER_NAME varchar2(20), 
+DOB date not null, 
+GENDER varchar2(6), 
+MOBILE_NUMBER varchar2(10), 
+ALTERNATE_MOBILE_NUMBER varchar2(10), 
+EMAIL_ID varchar2(25),
+AADHAR_NUMBER varchar2(12), 
+PAN_NUMBER varchar2(10), 
+ACCOUNT_TYPE varchar2(12), 
+ACCOUNT_HOLDER varchar2(12), 
+APPLICANT_STATUS varchar2(11), 
+APPLICATION_DATE date, 
+LINKED_APPLICATION number(6));
+
+create table bankadmins(
+admin_id varchar2(20),
+password varchar2(20));
+
+insert into bankadmins ('id1', 'pass1');
+
+
+insert into applicants values(15001, 'udita', 'alawadhu', 'kamla', 'poonam', '25 JUL 1985', 'FEMALE', '9895969596', '8585858585', 'blaj@ss.s', '123456456123', 'SSXSS4441X', 'INDIVIDUAL', 'PRIMARY', 'PENDING', '21 MAY 2015', 0);
+
+
+create table customers (
+UCI  number(16),
+USER_ID varchar2(15), 
+PASSWORD varchar2(15), 
+APPLICANT_ID number(6),
+FIRST_NAME varchar2(20), 
+LAST_NAME varchar2(20), 
+FATHER_NAME varchar2(30), 
+MOTHER_NAME varchar2(30), 
+DOB date, 
+GENDER varchar2(10),
+MOBILE_NUMBER varchar2(10), 
+ALTERNATE_MOBILE_NUMBER varchar2(10), 
+EMAIL_ID varchar2(35), 
+AADHAR_NUMBER varchar2(12), 
+PAN_NUMBER varchar2(10),
+ACCOUNT_TYPE varchar2(10), 
+ACCOUNT_HOLDER varchar2(10));
+
+
+create table permanent_address (
+APPLICANT_ID number(5), 
+HOUSE_NUMBER varchar2(25), 
+STREET_NAME varchar2(25), 
+AREA varchar2(25), 
+LANDMARK varchar2(25), CITY varchar2(25),
+STATE  varchar2(25), COUNTRY  varchar2(25), PINCODE number(6));
+
+create table current_address (
+APPLICANT_ID number(5), 
+HOUSE_NUMBER varchar2(25), 
+STREET_NAME varchar2(25), 
+AREA varchar2(25), 
+LANDMARK varchar2(25), CITY varchar2(25),
+STATE  varchar2(25), COUNTRY  varchar2(25), PINCODE number(6));
+
+create table Account (
+	account_number number(12) PRIMARY KEY, 
+	uci number(16) NOT NULL,
+	balance number(20, 2) NOT NULL,
+	transac_pass varchar2(15) NOT NULL,
+	acc_creation_date date NOT NULL,
+	account_type varchar2(11),
+	trans_id number(4)
+);
